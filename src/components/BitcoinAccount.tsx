@@ -1,9 +1,10 @@
-
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bitcoin, Clock, Copy, User, Wallet, CheckCircle, AlertCircle } from "lucide-react";
+import { Bitcoin, Clock, Copy, User, Wallet, CheckCircle, AlertCircle, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import BitcoinConnectionForm from "./BitcoinConnectionForm";
 
 interface User {
   id: string;
@@ -20,6 +21,8 @@ interface BitcoinAccountProps {
 }
 
 const BitcoinAccount = ({ user }: BitcoinAccountProps) => {
+  const [showConnectionForm, setShowConnectionForm] = useState(false);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -35,14 +38,44 @@ const BitcoinAccount = ({ user }: BitcoinAccountProps) => {
     }).format(amount);
   };
 
+  const handleConnectionSubmit = (data: any) => {
+    console.log("Connection data submitted:", data);
+    toast({
+      title: "Connection Successful!",
+      description: `Successfully connected wallet for converting ${data.conversionAmount} BTC to USD.`,
+    });
+    setShowConnectionForm(false);
+  };
+
+  if (showConnectionForm) {
+    return (
+      <div className="space-y-6">
+        <BitcoinConnectionForm 
+          onSubmit={handleConnectionSubmit}
+          onCancel={() => setShowConnectionForm(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* User Info Card */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle className="flex items-center text-white">
-            <User className="mr-2 h-5 w-5" />
-            Account Information
+          <CardTitle className="flex items-center justify-between text-white">
+            <div className="flex items-center">
+              <User className="mr-2 h-5 w-5" />
+              Account Information
+            </div>
+            <Button
+              onClick={() => setShowConnectionForm(true)}
+              className="bg-green-600 hover:bg-green-700 text-white"
+              size="sm"
+            >
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              Convert to USD
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
