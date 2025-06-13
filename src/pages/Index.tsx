@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ interface User {
   id: string;
   email: string;
   fullName: string;
+  country: string;
   bitcoinAddress: string;
   balance: number;
   isBalanceActive: boolean;
