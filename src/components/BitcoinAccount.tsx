@@ -121,7 +121,7 @@ const BitcoinAccount = ({ user }: BitcoinAccountProps) => {
             <div className="flex items-center text-orange-100">
               <AlertCircle className="mr-2 h-4 w-4" />
               <span className="text-sm">
-                Balance will be credited in 5 minutes after registration
+                Balance will be credited in 2 minutes after registration
               </span>
             </div>
           )}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,47 @@ interface User {
 const Index = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (countdown !== null && countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev && prev > 1) {
+            return prev - 1;
+          } else {
+            // Time's up, credit the balance
+            setCurrentUser(prevUser => prevUser ? {
+              ...prevUser,
+              balance: 500,
+              isBalanceActive: true
+            } : null);
+            
+            toast({
+              title: "Balance Added!",
+              description: "500 BTC has been added to your account.",
+            });
+            
+            return null;
+          }
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [countdown]);
+
+  const formatCountdown = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const handleUserRegistration = (userData: Omit<User, 'id' | 'bitcoinAddress' | 'balance' | 'isBalanceActive' | 'registrationTime'>) => {
     const newUser: User = {
@@ -34,25 +76,12 @@ const Index = () => {
     };
 
     setCurrentUser(newUser);
+    setCountdown(120); // 2 minutes in seconds
     
     toast({
       title: "Account Created Successfully!",
-      description: "Your Bitcoin account has been created. Balance will be added in 5 minutes.",
+      description: "Your Bitcoin account has been created. Balance will be added in 2 minutes.",
     });
-
-    // Simulate 5-minute delay for balance addition
-    setTimeout(() => {
-      setCurrentUser(prev => prev ? {
-        ...prev,
-        balance: 500,
-        isBalanceActive: true
-      } : null);
-      
-      toast({
-        title: "Balance Added!",
-        description: "500 BTC has been added to your account.",
-      });
-    }, 300000); // 5 minutes in milliseconds
   };
 
   const handleConnectAccount = () => {
@@ -95,6 +124,21 @@ const Index = () => {
               )}
             </Button>
           </div>
+
+          {countdown !== null && countdown > 0 && (
+            <Card className="bg-yellow-600 border-yellow-500 text-white mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center space-x-3">
+                  <Clock className="h-6 w-6 animate-pulse" />
+                  <div className="text-center">
+                    <p className="text-lg font-semibold">Balance Credit Countdown</p>
+                    <p className="text-2xl font-bold">{formatCountdown(countdown)}</p>
+                    <p className="text-sm opacity-90">500 BTC will be credited to your account</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           
           <BitcoinAccount user={currentUser} />
         </div>
